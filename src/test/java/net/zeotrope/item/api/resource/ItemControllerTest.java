@@ -216,7 +216,7 @@ public class ItemControllerTest {
                 ItemStatus.CURRENT,
                 "Summary"
         );
-        var updatedItem= new Item(
+        var updatedItem = new Item(
                 12345678L,
                 ItemStatus.CURRENT,
                 "Title",
@@ -246,6 +246,79 @@ public class ItemControllerTest {
         Mockito.verify(itemService, Mockito.times(1)).update(Mockito.anyLong(), Mockito.any());
     }
 
+    @Test
+    @DisplayName("should throw exception when item not found when updating item")
+    public void shouldThrowExceptionItemNotFoundWhenUpdatingItem() throws Exception {
+        // given
+        var itemDto = new ItemDto(
+                "Title",
+                ItemStatus.CURRENT,
+                "Summary"
+        );
 
+        // when
+        Mockito.when(itemService.update(Mockito.anyLong(), Mockito.any())).thenThrow(new ItemNotFoundException("Item not found for request: /api/v1/items/12345678"));
+        var content = objectMapper.writeValueAsString(itemDto);
 
+        // then
+        mockMvc.perform(
+                put("/api/v1/items/12345678")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.message").value("Item not found for request: /api/v1/items/12345678")
+                )
+                .andReturn();
+
+        Mockito.verify(itemService, Mockito.times(1)).update(Mockito.anyLong(), Mockito.any());
+    }
+
+    @Test
+    @DisplayName("should return 204 when update item status")
+    public void shouldReturn204UpdateItemStatus() throws Exception {
+        // given
+        var updatedItem= new Item(
+                1234L,
+                ItemStatus.DISCONTINUED,
+                "Title",
+                "Summary",
+                createdDate,
+                createdDate,
+                null
+        );
+
+        // when
+        Mockito.when(itemService.updateItemStatus(Mockito.anyLong(), Mockito.any(ItemStatus.class))).thenReturn(updatedItem);
+
+        // then
+
+        var actual = mockMvc.perform(
+                        put("/api/v1/items/1234")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("status", "discontinued"))
+                .andExpectAll(
+                        status().isNoContent()
+                )
+                .andReturn();
+
+        assertTrue(actual.getResponse().getContentAsString().isEmpty());
+
+        Mockito.verify(itemService, Mockito.times(1)).updateItemStatus(Mockito.anyLong(), Mockito.any(ItemStatus.class));
+    }
+
+    @Test
+    @DisplayName("should return 204 when successful delete item")
+    public void shouldReturn204WhenDeleteItem() throws Exception {
+        // given
+        // when
+        // then
+        mockMvc.perform(
+                delete("/api/v1/items/1234"))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(itemService, Mockito.times(1)).delete(Mockito.anyLong());
+    }
 }
