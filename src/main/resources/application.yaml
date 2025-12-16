@@ -1,0 +1,71 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  pattern:
+    level: "%5p"
+  level:
+    org.springframework.cache: TRACE
+    org.springframework.data.redis: TRACE
+    org.springframework.jpa: TRACE
+
+spring:
+  application:
+    name: item_cache_j.webservice
+  threads:
+    virtual:
+      enabled: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  data:
+    jpa:
+      repositories:
+        enabled: true
+    redis:
+      database: 0
+      repositories:
+        enabled: true
+      host: ${REDIS_HOST:item_j-redis}
+      port: ${REDIS_PORT:6379}
+      client-type: lettuce
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:item_j-postgres-db}:${POSTGRES_PORT:5432}/${POSTGRES_DB:itemsjdb}
+    username: itemj_user
+    password: itemj_pass
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+  sql:
+    init:
+      platform: postgres
+
+
+  cache:
+    type: redis
+
+management:
+  endpoints:
+    access:
+      default: read_only
+    web:
+      base-path: /
+      exposure:
+        include: "*"
+
+# Redis cache configuration:
+cache:
+  redis:
+    ttl: ${REDIS_TTL:300}

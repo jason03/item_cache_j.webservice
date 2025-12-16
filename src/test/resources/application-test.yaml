@@ -1,0 +1,6 @@
+spring:
+
+  datasource:
+    url: jdbc:tc:postgresql:17.6:///itemsjdb
+    username: test
+    password: test
