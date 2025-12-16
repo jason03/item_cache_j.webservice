@@ -52,4 +52,19 @@ public class StringToItemStatusConverterTest {
         );
         assertEquals(invalidStatus, exception.getMessage());
     }
+
+    @Test
+    @DisplayName( "should throw an InvalidStatusException for a null item status")
+    public void shouldThrowAnInvalidStatusExceptionForNullItemStatus() {
+        // given
+        var invalidStatus = "";
+        // when
+        // then
+        var exception = assertThrows(InvalidStatusException.class,
+                () -> {
+                    converterUnderTest.convert(invalidStatus);
+                }
+        );
+        assertEquals("item status cannot be null", exception.getMessage());
+    }
 }

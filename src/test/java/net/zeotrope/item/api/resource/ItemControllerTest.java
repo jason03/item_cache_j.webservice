@@ -1,8 +1,11 @@
 package net.zeotrope.item.api.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.zeotrope.item.domain.Item;
 import net.zeotrope.item.domain.ItemStatus;
 import net.zeotrope.item.exceptions.ItemNotFoundException;
+import net.zeotrope.item.mapper.ItemMapper;
+import net.zeotrope.item.model.ItemDto;
 import net.zeotrope.item.service.ItemService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ItemController.class)
@@ -26,6 +30,9 @@ public class ItemControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private ItemService itemService;
@@ -168,4 +175,77 @@ public class ItemControllerTest {
                         jsonPath("$.message").value("Item not found for request: /api/v1/items/1234567890")
                 );
     }
+
+    @Test
+    @DisplayName("should return 201 when create item")
+    public void shouldReturn201CreateItem() throws Exception {
+        // given
+        var itemDto = new ItemDto(
+                "Title",
+                ItemStatus.CURRENT,
+                "Summary"
+        );
+        var item = ItemMapper.toNewItem(itemDto);
+
+        // when
+        Mockito.when(itemService.createItem(Mockito.any())).thenReturn(item);
+
+        var content = objectMapper.writeValueAsString(item);
+
+        // then
+        mockMvc.perform(
+                post("/api/v1/items")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+
+                .andExpectAll(
+                        status().isCreated(),
+                        header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                );
+
+        Mockito.verify(itemService, Mockito.times(1)).createItem(Mockito.any());
+    }
+
+    @Test
+    @DisplayName("should return 204 when update item")
+    public void shouldReturn204UpdateItem() throws Exception {
+        // given
+        var itemDto = new ItemDto(
+                "Title",
+                ItemStatus.CURRENT,
+                "Summary"
+        );
+        var updatedItem= new Item(
+                12345678L,
+                ItemStatus.CURRENT,
+                "Title",
+                "Summary",
+                createdDate,
+                createdDate,
+                null
+        );
+
+        // when
+        Mockito.when(itemService.update(Mockito.anyLong(), Mockito.any())).thenReturn(updatedItem);
+        var content = objectMapper.writeValueAsString(itemDto);
+
+        // then
+        var actual = mockMvc.perform(
+                put("/api/v1/items/12345678")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpectAll(
+                        status().isNoContent()
+                )
+                .andReturn();
+
+        assertTrue(actual.getResponse().getContentAsString().isEmpty());
+
+        Mockito.verify(itemService, Mockito.times(1)).update(Mockito.anyLong(), Mockito.any());
+    }
+
+
+
 }
