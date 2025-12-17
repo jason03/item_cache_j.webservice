@@ -34,9 +34,9 @@ public class ItemRepositoryTest extends TestServiceContainers {
     public void shouldAddItemToDatabase(){
         // given
         var itemDto = new ItemDto(
-                "Article Title",
+                "Title",
                 ItemStatus.CURRENT,
-                "Article Summary"
+                "Summary"
         );
         var item = ItemMapper.toNewItem(itemDto);
 

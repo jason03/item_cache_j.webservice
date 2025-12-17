@@ -22,20 +22,20 @@ public class ItemMapperTest {
     private static Stream<Arguments> itemDtoToDomain(){
         return Stream.of(
                 Arguments.of(
-                        Named.of("Article Title",
+                        Named.of("Title",
                                 new ItemDto(
-                                        "Article Title",
+                                        "Title",
                                         ItemStatus.CURRENT,
-                                        "Article Summary"
+                                        "Summary"
                                 )
                         )
                 ),
                 Arguments.of(
-                        Named.of("Article Title Two",
+                        Named.of("Title Two",
                                 new ItemDto(
-                                        "Article Title Two",
+                                        "Title Two",
                                         ItemStatus.CURRENT,
-                                        "Article Summary Two"
+                                        "Summary Two"
                                 )
                         )
                 )
@@ -70,16 +70,16 @@ public class ItemMapperTest {
         var existingItem = new Item (
                 1234567890L,
                 ItemStatus.CURRENT,
-                "Article Title One",
-                "Article Summary One",
+                "Title One",
+                "Summary One",
                 baseDateTime,
                 baseDateTime,
                 null
         );
         var item = new ItemDto(
-                "Article Title One",
+                "Title One",
                 ItemStatus.CURRENT,
-                "Article Summary"
+                "Summary"
         );
 
         // when
@@ -109,8 +109,8 @@ public class ItemMapperTest {
         var item = new Item(
                 1234567890L,
                 ItemStatus.CURRENT,
-                "Article Title One",
-                "Article Summary One",
+                "Title One",
+                "Summary One",
                 createdDate,
                 createdDate,
                 null

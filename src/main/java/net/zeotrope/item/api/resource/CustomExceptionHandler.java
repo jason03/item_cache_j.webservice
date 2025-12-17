@@ -54,7 +54,7 @@ public class CustomExceptionHandler  {
                         Instant.now(),
                         HttpStatus.NOT_FOUND.value(),
                         HttpStatus.NOT_FOUND.getReasonPhrase(),
-                        String.format("No Resource Found for request: %s", request.getRequestURI())
+                        String.format("Resource Not Found for request: %s", request.getRequestURI())
                 ), HttpStatus.NOT_FOUND);
     }
 
@@ -76,7 +76,7 @@ public class CustomExceptionHandler  {
                         Instant.now(),
                         HttpStatus.BAD_REQUEST.value(),
                         HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                        String.format("Item request is invalid: %s&%s", request.getRequestURI(), request.getQueryString())
+                        String.format("Item request is invalid: %s?%s", request.getRequestURI(), request.getQueryString())
                 ), HttpStatus.BAD_REQUEST);
     }
 }
