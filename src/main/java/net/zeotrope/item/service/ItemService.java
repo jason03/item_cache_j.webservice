@@ -56,7 +56,7 @@ public class ItemService {
                 .map(itemRepository::save)
                 .orElseThrow(() -> new ItemNotFoundException(String.format("Item with id %d not found", id)));
 
-        return itemRepository.save(updatedItem);
+        return updatedItem;
     }
 
     @Transactional
@@ -67,7 +67,7 @@ public class ItemService {
                 .map(itemRepository::save)
                 .orElseThrow(() -> new ItemNotFoundException(String.format("Item with id %d not found", id)));
 
-        return itemRepository.save(updatedItem);
+        return updatedItem;
     }
 
     @Transactional
