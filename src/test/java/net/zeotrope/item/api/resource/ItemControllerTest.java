@@ -9,6 +9,8 @@ import net.zeotrope.item.model.ItemDto;
 import net.zeotrope.item.service.ItemService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -156,7 +158,62 @@ public class ItemControllerTest {
                 );
 
         Mockito.verify(itemService, Mockito.times(1)).get(Mockito.anyLong());
+        Mockito.verify(itemService, Mockito.times(0)).processItemA(Mockito.any());
+        Mockito.verify(itemService, Mockito.times(0)).processItemB(Mockito.any());
+        Mockito.verify(itemService, Mockito.times(0)).processItemC(Mockito.any());
     }
+
+    @CsvSource(
+            value = {
+                    "0, 0, 0, 0",
+                    "1, 1, 0, 0",
+                    "2, 0, 1, 0",
+                    "3, 0, 0, 1"
+            }
+    )
+    @ParameterizedTest(name = "should return 200 when get item by id with process value {0}")
+    public void shouldReturn200ForItemByIdWithProcessParam(String processValue, int verifyA, int verifyB, int verifyC) throws Exception {
+        // given
+        var item = new Item(
+                1234567890L,
+                ItemStatus.CURRENT,
+                "Title One",
+                "Summary One",
+                createdDate,
+                createdDate,
+                null
+        );
+
+        // when
+        Mockito.when(itemService.get(Mockito.anyLong())).thenReturn(item);
+        Mockito.when(itemService.processItemA(Mockito.any(Item.class))).thenReturn(item);
+        Mockito.when(itemService.processItemB(Mockito.any(Item.class))).thenReturn(item);
+        Mockito.when(itemService.processItemC(Mockito.any(Item.class))).thenReturn(item);
+
+        // then
+        mockMvc.perform(
+                        get("/api/v1/items/1234567890")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .param("process", processValue))
+                .andExpectAll(
+                        status().isOk(),
+                        header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE),
+                        jsonPath("$.length()").value(7),
+                        jsonPath("$.id").value(1234567890L),
+                        jsonPath("$.status").value("CURRENT"),
+                        jsonPath("$.name").value("Title One"),
+                        jsonPath("$.summary").value("Summary One"),
+                        jsonPath("$.createdAt").value("2025-01-01T00:00:00"),
+                        jsonPath("$.lastModifiedAt").value("2025-01-01T00:00:00"),
+                        jsonPath("$.discontinuedAt").isEmpty()
+                );
+
+        Mockito.verify(itemService, Mockito.times(1)).get(Mockito.anyLong());
+        Mockito.verify(itemService, Mockito.times(verifyA)).processItemA(Mockito.any());
+        Mockito.verify(itemService, Mockito.times(verifyB)).processItemB(Mockito.any());
+        Mockito.verify(itemService, Mockito.times(verifyC)).processItemC(Mockito.any());
+    }
+
 
     @Test
     @DisplayName("should throw exception when item not found when getting item by id")

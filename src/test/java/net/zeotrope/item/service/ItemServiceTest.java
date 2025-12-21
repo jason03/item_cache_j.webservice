@@ -7,6 +7,7 @@ import net.zeotrope.item.model.ItemDto;
 import net.zeotrope.item.repository.ItemRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -280,5 +283,68 @@ public class ItemServiceTest {
         assertEquals(newItemStatus, actual.getStatus());
         Mockito.verify(itemRepository, Mockito.times(1)).findById(Mockito.anyLong());
         Mockito.verify(itemRepository, Mockito.times(1)).save(Mockito.any());
+    }
+
+    @Test
+    @DisplayName("should mock process A item async with virtual thread")
+    public void shouldMockProcessItemAsyncA(){
+        // given
+        var item = new Item(
+                1L,
+                ItemStatus.CURRENT,
+                "Title",
+                "Summary",
+                createdDate,
+                modifiedDate,
+                null
+        );
+
+        // when
+        var actual = itemService.processItemA(item);
+
+        // then
+        assertTrue(actual.getSummary().startsWith("Test Summary processed with A. Random value"));
+    }
+
+    @Test
+    @DisplayName("should mock process B item async with virtual thread")
+    public void shouldMockProcessItemAsyncB(){
+        // given
+        var item = new Item(
+                1L,
+                ItemStatus.CURRENT,
+                "Title",
+                "Summary",
+                createdDate,
+                modifiedDate,
+                null
+        );
+
+        // when
+        var actual = itemService.processItemB(item);
+
+        // then
+        assertEquals("Test Summary processed with B", actual.getSummary());
+    }
+
+    @Test
+    @DisplayName("should mock process C item async with virtual thread")
+    public void shouldMockProcessItemAsyncC(){
+        // given
+        var item = new Item(
+                1L,
+                ItemStatus.CURRENT,
+                "Title",
+                "Summary",
+                createdDate,
+                modifiedDate,
+                null
+        );
+
+        // when
+        var actual = itemService.processItemC(item);
+
+        // then
+        assertTrue(actual.getSummary().startsWith("Test Summary processed with C. Random value"));
     }
 }

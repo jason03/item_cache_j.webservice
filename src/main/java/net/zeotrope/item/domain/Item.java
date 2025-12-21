@@ -38,9 +38,9 @@ public class Item implements Serializable {
     @Column(name = "discontinued_at")
     private LocalDateTime discontinuedAt;
 
-    public static Comparator<Item> itemStatusSortOld =
-            (Item i1, Item i2) ->
-                    Integer.compare(ItemStatus.sortOrder(i1.getStatus()), ItemStatus.sortOrder(i2.getStatus()));
+//    public static Comparator<Item> itemStatusSortOld =
+//            (Item i1, Item i2) ->
+//                    Integer.compare(ItemStatus.sortOrder(i1.getStatus()), ItemStatus.sortOrder(i2.getStatus()));
     // same as above func
     public static Comparator<Item> itemStatusSort =
             Comparator.comparingInt((Item i) -> ItemStatus.sortOrder(i.getStatus()));
